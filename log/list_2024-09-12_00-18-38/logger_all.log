@@ -1,0 +1,246 @@
+[0.141s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'list', '-p', '--base-paths', '/home/chengu/ga_ws/src']
+[0.141s] DEBUG:colcon:Parsed command line arguments: Namespace(allow_overriding=[], base_paths=['/home/chengu/ga_ws/src'], build_base='build', ignore_user_meta=False, log_base=None, log_level=None, main=<bound method ListVerb.main of <colcon_package_information.verb.list.ListVerb object at 0x7f627e48e4f0>>, metas=['./colcon.meta'], names_only=False, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_end=None, packages_ignore=None, packages_ignore_regex=None, packages_select=None, packages_select_build_failed=False, packages_select_by_dep=None, packages_select_regex=None, packages_select_test_failures=False, packages_skip=None, packages_skip_build_finished=False, packages_skip_by_dep=None, packages_skip_regex=None, packages_skip_test_passed=False, packages_skip_up_to=None, packages_start=None, packages_up_to=None, packages_up_to_regex=None, paths=None, paths_only=True, topological_graph=False, topological_graph_density=False, topological_graph_dot=False, topological_graph_dot_cluster=False, topological_graph_dot_include_skipped=False, topological_graph_legend=False, topological_order=False, verb_extension=<colcon_package_information.verb.list.ListVerb object at 0x7f627e48e4f0>, verb_name='list', verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x7f627e3e9fa0>)
+[0.176s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.176s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.176s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.176s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.176s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.176s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/chengu/ga_ws/src'
+[0.176s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extensions ['ignore', 'ignore_ament_install']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'ignore'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'ignore_ament_install'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extensions ['colcon_pkg']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'colcon_pkg'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extensions ['colcon_meta']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'colcon_meta'
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extensions ['ros']
+[0.177s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'ros'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extensions ['cmake', 'python']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'cmake'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'python'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extensions ['python_setup_py']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src) by extension 'python_setup_py'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extensions ['ignore', 'ignore_ament_install']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'ignore'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'ignore_ament_install'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extensions ['colcon_pkg']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'colcon_pkg'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extensions ['colcon_meta']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'colcon_meta'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extensions ['ros']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'ros'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extensions ['cmake', 'python']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'cmake'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'python'
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extensions ['python_setup_py']
+[0.187s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing) by extension 'python_setup_py'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extension 'ignore'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extension 'ignore_ament_install'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extensions ['colcon_pkg']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extension 'colcon_pkg'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extensions ['colcon_meta']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extension 'colcon_meta'
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extensions ['ros']
+[0.188s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_msgs) by extension 'ros'
+[0.189s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/apriltag_msgs' with type 'ros.ament_cmake' and name 'apriltag_msgs'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extensions ['ignore', 'ignore_ament_install']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extension 'ignore'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extension 'ignore_ament_install'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extensions ['colcon_pkg']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extension 'colcon_pkg'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extensions ['colcon_meta']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extension 'colcon_meta'
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extensions ['ros']
+[0.189s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/apriltag_ros) by extension 'ros'
+[0.190s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/apriltag_ros' with type 'ros.ament_cmake' and name 'apriltag_ros'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extensions ['ignore', 'ignore_ament_install']
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extension 'ignore'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extension 'ignore_ament_install'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extensions ['colcon_pkg']
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extension 'colcon_pkg'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extensions ['colcon_meta']
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extension 'colcon_meta'
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extensions ['ros']
+[0.190s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/goal_pub) by extension 'ros'
+[0.191s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/goal_pub' with type 'ros.ament_python' and name 'goal_pub'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extensions ['ignore', 'ignore_ament_install']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'ignore'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'ignore_ament_install'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extensions ['colcon_pkg']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'colcon_pkg'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extensions ['colcon_meta']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'colcon_meta'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extensions ['ros']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'ros'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extensions ['cmake', 'python']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'cmake'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'python'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extensions ['python_setup_py']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline) by extension 'python_setup_py'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extensions ['ignore', 'ignore_ament_install']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extension 'ignore'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extension 'ignore_ament_install'
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extensions ['colcon_pkg']
+[0.191s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extension 'colcon_pkg'
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extensions ['colcon_meta']
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extension 'colcon_meta'
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extensions ['ros']
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration) by extension 'ros'
+[0.192s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/camera_calibration' with type 'ros.ament_python' and name 'camera_calibration'
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extensions ['ignore', 'ignore_ament_install']
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extension 'ignore'
+[0.192s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extension 'ignore_ament_install'
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extensions ['colcon_pkg']
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extension 'colcon_pkg'
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extensions ['colcon_meta']
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extension 'colcon_meta'
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extensions ['ros']
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc) by extension 'ros'
+[0.193s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc' with type 'ros.ament_cmake' and name 'depth_image_proc'
+[0.193s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extensions ['ignore', 'ignore_ament_install']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extension 'ignore'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extension 'ignore_ament_install'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extensions ['colcon_pkg']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extension 'colcon_pkg'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extensions ['colcon_meta']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extension 'colcon_meta'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extensions ['ros']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline) by extension 'ros'
+[0.194s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_pipeline' with type 'ros.ament_cmake' and name 'image_pipeline'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extensions ['ignore', 'ignore_ament_install']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extension 'ignore'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extension 'ignore_ament_install'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extensions ['colcon_pkg']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extension 'colcon_pkg'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extensions ['colcon_meta']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extension 'colcon_meta'
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extensions ['ros']
+[0.194s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc) by extension 'ros'
+[0.195s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc' with type 'ros.ament_cmake' and name 'image_proc'
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extensions ['ignore', 'ignore_ament_install']
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extension 'ignore'
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extension 'ignore_ament_install'
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extensions ['colcon_pkg']
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extension 'colcon_pkg'
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extensions ['colcon_meta']
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extension 'colcon_meta'
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extensions ['ros']
+[0.195s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher) by extension 'ros'
+[0.196s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher' with type 'ros.ament_cmake' and name 'image_publisher'
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extensions ['ignore', 'ignore_ament_install']
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extension 'ignore'
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extension 'ignore_ament_install'
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extensions ['colcon_pkg']
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extension 'colcon_pkg'
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extensions ['colcon_meta']
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extension 'colcon_meta'
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extensions ['ros']
+[0.196s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate) by extension 'ros'
+[0.197s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate' with type 'ros.ament_cmake' and name 'image_rotate'
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extensions ['ignore', 'ignore_ament_install']
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extension 'ignore'
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extension 'ignore_ament_install'
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extensions ['colcon_pkg']
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extension 'colcon_pkg'
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extensions ['colcon_meta']
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extension 'colcon_meta'
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extensions ['ros']
+[0.197s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view) by extension 'ros'
+[0.198s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view' with type 'ros.ament_cmake' and name 'image_view'
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extensions ['ignore', 'ignore_ament_install']
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extension 'ignore'
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extension 'ignore_ament_install'
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extensions ['colcon_pkg']
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extension 'colcon_pkg'
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extensions ['colcon_meta']
+[0.198s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extension 'colcon_meta'
+[0.199s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extensions ['ros']
+[0.199s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc) by extension 'ros'
+[0.199s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc' with type 'ros.ament_cmake' and name 'stereo_image_proc'
+[0.199s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extensions ['ignore', 'ignore_ament_install']
+[0.199s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'ignore'
+[0.199s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'ignore_ament_install'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extensions ['colcon_pkg']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'colcon_pkg'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extensions ['colcon_meta']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'colcon_meta'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extensions ['ros']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'ros'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extensions ['cmake', 'python']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'cmake'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'python'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extensions ['python_setup_py']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tools) by extension 'python_setup_py'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extensions ['ignore', 'ignore_ament_install']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extension 'ignore'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extension 'ignore_ament_install'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extensions ['colcon_pkg']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extension 'colcon_pkg'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extensions ['colcon_meta']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extension 'colcon_meta'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extensions ['ros']
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline) by extension 'ros'
+[0.200s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline' with type 'ros.ament_cmake' and name 'tracetools_image_pipeline'
+[0.200s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extensions ['ignore', 'ignore_ament_install']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'ignore'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'ignore_ament_install'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extensions ['colcon_pkg']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'colcon_pkg'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extensions ['colcon_meta']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'colcon_meta'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extensions ['ros']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'ros'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extensions ['cmake', 'python']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'cmake'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'python'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extensions ['python_setup_py']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/image_pipeline/wiki_files) by extension 'python_setup_py'
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extensions ['ignore', 'ignore_ament_install']
+[0.201s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'ignore'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'ignore_ament_install'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extensions ['colcon_pkg']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'colcon_pkg'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extensions ['colcon_meta']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'colcon_meta'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extensions ['ros']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'ros'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extensions ['cmake', 'python']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'cmake'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'python'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extensions ['python_setup_py']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/log) by extension 'python_setup_py'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extensions ['ignore', 'ignore_ament_install']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extension 'ignore'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extension 'ignore_ament_install'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extensions ['colcon_pkg']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extension 'colcon_pkg'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extensions ['colcon_meta']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extension 'colcon_meta'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extensions ['ros']
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/auto_landing/px4-offboard) by extension 'ros'
+[0.202s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/auto_landing/px4-offboard' with type 'ros.ament_python' and name 'px4_offboard'
+[0.202s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/log) by extensions ['ignore', 'ignore_ament_install']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/log) by extension 'ignore'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/log) ignored
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extension 'ignore'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extension 'ignore_ament_install'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extensions ['colcon_pkg']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extension 'colcon_pkg'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extensions ['colcon_meta']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extension 'colcon_meta'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extensions ['ros']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/px4_msgs) by extension 'ros'
+[0.203s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/px4_msgs' with type 'ros.ament_cmake' and name 'px4_msgs'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extensions ['ignore', 'ignore_ament_install']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extension 'ignore'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extension 'ignore_ament_install'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extensions ['colcon_pkg']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extension 'colcon_pkg'
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extensions ['colcon_meta']
+[0.203s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extension 'colcon_meta'
+[0.204s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extensions ['ros']
+[0.204s] Level 1:colcon.colcon_core.package_identification:_identify(/home/chengu/ga_ws/src/usb_cam) by extension 'ros'
+[0.208s] DEBUG:colcon.colcon_core.package_identification:Package '/home/chengu/ga_ws/src/usb_cam' with type 'ros.ament_cmake' and name 'usb_cam'
+[0.208s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults

@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/foxy/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/depth_image_proc/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_proc/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_publisher/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_rotate/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/image_view/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/stereo_image_proc/include/**",
+        "/home/chengu/ga_ws/src/auto_landing/image_pipeline/tracetools_image_pipeline/include/**",
+        "/home/chengu/ga_ws/src/usb_cam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
