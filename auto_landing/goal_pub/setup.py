@@ -28,6 +28,8 @@ setup(
             'depth = goal_pub.depth:main',
             'gimbal = goal_pub.gimbal_controller:main',
             'topic_name = goal_pub.topic_name:main',
+            'est_vel = goal_pub.est_vel:main',
+            'vel_pub = goal_pub.vel_pub:main',
         ],
     },
 )
