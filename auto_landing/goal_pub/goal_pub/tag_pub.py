@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timedelta
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
+from sklearn.linear_model import LinearRegression
 
 from tf2_msgs.msg import TFMessage as TfMsg
 from px4_msgs.msg import VehicleAttitude
@@ -72,13 +73,6 @@ class TagPublisher(Node):
             10
         )
 
-        self.phase_sub = self.create_subscription(
-            Float32MultiArray,
-            '/auto_land_home_info',
-            self.phase_check_callback,
-            10
-        )
-        
         # parameter
 
         self.xf_pub = self.create_publisher(Float32MultiArray, 'bezier_waypoint', 10)
@@ -86,10 +80,9 @@ class TagPublisher(Node):
         self.yaw = 0
         self.drone_q = [1.0,0.0,0.0,0.0]
         self.drone_world = [0.0, 0.0, 0.0]
-        self.past_waypoint = [0.0, 0.0, 0.0, 0.0, 0.0, 0.5]
         self.waypoint = [0.0, 0.0, 0.0, 0.0, 0.0, 0.5]
-        self.phase = 0
-        self.alpha = 0.8
+        
+        self.camera_position = [0.0, 0.0, 0.0] # 카메라 위치 (카메라의 중심점) x: 앞으로, y: 오른쪽으로, z: 아래로
 
         # timer
 
@@ -109,62 +102,27 @@ class TagPublisher(Node):
         self.logger.info(*args, **kwargs)
     
     def tag_callback(self, msg):
-        if self.phase:
-            try:
-                if len(msg.transforms) == 2:
-                    transform_0 = msg.transforms[0].transform
-                    tag_pose_0 = transform_0.translation
-                    tag_body_0 = np.array([-tag_pose_0.y, tag_pose_0.x, tag_pose_0.z])  
-                    drone2tag_world_0 = np.matmul(self.rotation_yaw,tag_body_0)
-                    tag_world_0 = drone2tag_world_0+self.drone_world
-                    current_waypoint_0 = [tag_world_0[0], tag_world_0[1], tag_world_0[2]-0.4, 0., 0., 0.5] 
+        try:
+            transform = msg.transforms[0].transform
+            frame_id = msg.transforms[0].child_frame_id
+            tag_pose = transform.translation
+            tag_body = np.array([-tag_pose.y, tag_pose.x, tag_pose.z])  # 카메라의 위가 앞을 바라보고 있을 때
+            drone2tag_world = np.matmul(self.rotation_yaw,tag_body)
+            tag_world = drone2tag_world + self.drone_world + self.camera_position
+            current_waypoint = [tag_world[0], tag_world[1], tag_world[2], 0., 0., 0.5] 
+            self.waypoint = current_waypoint
+            
+            self.print(f"tag_world : {tag_world}    drone_world : {self.drone_world}    id : {frame_id}")
 
-                    transform_1 = msg.transforms[1].transform
-                    tag_pose_1 = transform_1.translation
-                    tag_body_1 = np.array([-tag_pose_1.y, tag_pose_1.x, tag_pose_1.z])  
-                    drone2tag_world_1 = np.matmul(self.rotation_yaw,tag_body_1)
-                    tag_world_1 = drone2tag_world_1+self.drone_world
-                    current_waypoint_1 = [tag_world_1[0], tag_world_1[1], tag_world_1[2]-0.4, 0., 0., 0.5] 
-
-                    if np.linalg.norm(current_waypoint_0-self.past_waypoint) < np.linalg.norm(current_waypoint_1-self.past_waypoint):
-                        current_waypoint = current_waypoint_0
-                    else :
-                        current_waypoint = current_waypoint_1
-                    
-                else:
-                    transform = msg.transforms[0].transform
-                    frame_id = msg.transforms[0].child_frame_id
-                    tag_pose = transform.translation
-                    tag_body = np.array([-tag_pose.y, tag_pose.x, tag_pose.z])  
-                    drone2tag_world = np.matmul(self.rotation_yaw,tag_body)
-                    tag_world = drone2tag_world+self.drone_world
-                    current_waypoint = [tag_world[0], tag_world[1], tag_world[2]-0.4, 0., 0., 0.5] 
-                
-                
-                if self.first:
-                    self.past_waypoint = current_waypoint
-                    self.first = False
-                self.waypoint = self.alpha * current_waypoint + (1-self.alpha) * self.past_waypoint
-                self.past_waypoint = self.waypoint
-
-                self.print(f"tag_world : {tag_world}    drone_world : {self.drone_world}    id : {frame_id}")
-
-            except Exception as e:
-                self.print("apriltag not dtected")
-                self.print(f"error : {e}")
+        except Exception as e:
+            self.print("apriltag not dtected")
+            self.print(f"error : {e}")
     
     def timer_callback(self):
         if self.first == False:
             xf_msg = Float32MultiArray()
             xf_msg.data = self.waypoint
-            self.xf_pub.publish(xf_msg)
-
-    def phase_check_callback(self, msg):
-        if self.phase == 0:
-            self.home = msg.data[0:3]
-            self.past_waypoint = [self.home[0], self.home[1], self.home[2], 0., 0., 0.5]
-        self.phase = 1
-        
+            self.xf_pub.publish(xf_msg)        
 
     def att_callback(self, msg):
         try:

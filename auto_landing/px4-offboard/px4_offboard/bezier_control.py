@@ -1,53 +1,18 @@
-#!/usr/bin/env python
-############################################################################
-#
-#   Copyright (C) 2022 PX4 Development Team. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in
-#    the documentation and/or other materials provided with the
-#    distribution.
-# 3. Neither the name PX4 nor the names of its contributors may be
-#    used to endorse or promote products derived from this software
-#    without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-############################################################################
-
-__author__ = "Jaeyoung Lim, Modified by Jongann Lee,Jintae Choi"
-__contact__ = "jalim@ethz.ch, johnny3357@snu.ac.kr"
-
 import rclpy
 import copy
 import numpy as np
 import logging
 import os
+import math
 from datetime import datetime, timedelta
 from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
+from sklearn.linear_model import LinearRegression
 
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
-from px4_msgs.msg import VehicleStatus, VehicleLocalPosition
+from px4_msgs.msg import VehicleStatus, VehicleLocalPosition, VehicleGlobalPosition
 from px4_msgs.msg import VehicleCommand
 from std_msgs.msg import Float32MultiArray, Bool
 
@@ -150,18 +115,12 @@ class BezierControl(Node):
             depth=1
         )
 
+        # Subscriber
         self.status_sub = self.create_subscription(
             VehicleStatus,
             '/fmu/out/vehicle_status',
             self.vehicle_status_callback,
             qos_profile
-        )
-
-        self.phase_sub = self.create_subscription(
-            Float32MultiArray,
-            '/auto_land_home_info',
-            self.phase_check_callback,
-            10
         )
 
         self.command_sub = self.create_subscription(
@@ -171,7 +130,6 @@ class BezierControl(Node):
             10
         )
 
-        # TODO : Replace with GPS data
         self.odometry_sub = self.create_subscription(
             VehicleLocalPosition,
             '/fmu/out/vehicle_local_position',
@@ -179,15 +137,31 @@ class BezierControl(Node):
             qos_profile
         )
 
+        self.vehicle_global_position_sub = self.create_subscription(
+            VehicleGlobalPosition, 
+            '/fmu/out/vehicle_global_position', 
+            self.vehicle_global_position_callback, 
+            qos_profile
+        )
+
+        self.sub = self.create_subscription(
+            Float32MultiArray,
+            '/land_position',
+            self.position_callback,
+            qos_profile
+        )
+
+        # Publisher
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, '/fmu/in/offboard_control_mode', qos_profile)
         self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, '/fmu/in/trajectory_setpoint', qos_profile)
         self.publisher_vehicle_command = self.create_publisher(VehicleCommand, '/fmu/in/vehicle_command', qos_profile)
-        self.publisher_landing = self.create_publisher(Bool, 'landing', 10)
         
         
+        # Timer
         self.timer_period = 0.02  # seconds
         self.timer = self.create_timer(self.timer_period, self.cmdloop_callback)
 
+        # Parameter
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.delta_t = -1
         self.delta_t_goal = 0
@@ -198,6 +172,7 @@ class BezierControl(Node):
         self.pub = 0
         self.yaw_start = 0
         self.vehicle_length = np.array([0.5, 0.0, 0.0])
+        self.vehicle_global_position_NED = [0.0, 0.0, 0.0]
         self.R = np.array([[np.cos(self.yaw_start), -np.sin(self.yaw_start), 0],
                             [np.sin(self.yaw_start), np.cos(self.yaw_start), 0],
                             [0, 0, 1]])
@@ -210,6 +185,19 @@ class BezierControl(Node):
 
         self.goal_position = [0.0, 0.0, 0.0] # landing position in gps, x + 0.5, y, z + 0.4
         self.home_position = [0.0, 0.0, 0.0]
+
+        self.x_data = []
+        self.y_data = []
+        self.z_data = []
+
+        self.x_data_edit = np.array([])
+        self.y_data_edit = np.array([])
+        self.z_data_edit = np.array([])
+
+        self.est_len = 10
+        self.time_data = []
+        self.velocity = [0.0, 0.0, 0.0]
+        self.vmax = 1
 
         """
         Logging setup
@@ -227,28 +215,17 @@ class BezierControl(Node):
         print(*args, **kwargs)
         self.logger.info(*args, **kwargs)
 
+    def vehicle_global_position_callback(self, msg):
+        self.vehicle_global_position_lla = [msg.lat, msg.lon, msg.altitude]
+
     def vehicle_status_callback(self, msg):
-        self.nav_state = msg.nav_state
-        
-    def phase_check_callback(self,msg):
-        self.phase_check = True
-        self.home_position = msg.data[0:3]
-        self.goal_position = self.home_position
-        self.yaw_start = msg.data[3]
-        self.R = np.array([[np.cos(self.yaw_start), -np.sin(self.yaw_start), 0],
-                            [np.sin(self.yaw_start), np.cos(self.yaw_start), 0],
-                            [0, 0, 1]])
-        self.print(f"self.yaw: {self.yaw_start}")
-        self.print(f"self.home: {self.home_position}")
-        self.print(f"shift: {np.dot(self.R, self.vehicle_length)}")
+        self.nav_state = msg.nav_state        
 
     def point_command_callback(self, msg):
-        self.xf = np.asfarray(msg.data[0:3]) + np.dot(self.R, self.vehicle_length)
+        self.xf = np.asfarray(msg.data[0:3]) + self.velocity * np.linalg.norm(self.xf - self.vehicle_position) / self.vmax
         self.vf = np.asfarray(msg.data[3:6])
         self.init_position = copy.deepcopy(self.vehicle_position)
         self.detect = 1
-        #Execute the bezier curve class
-        # if np.linalg.norm(self.xf - self.init_position) > 1:  # stop updating the bezier curve if 1m or less from the goal
         bezier_points = points(self.init_position, self.xf, self.vehicle_velocity, self.vf, hz)
         self.x = bezier_points.bezier_x()
         self.y = bezier_points.bezier_y()
@@ -258,17 +235,69 @@ class BezierControl(Node):
         self.vz = bezier_points.bezier_vz()
         self.count = bezier_points.count
         self.t = bezier_points.t#
-        self.point2 = bezier_points.point2#
         self.point1 = bezier_points.point1#
+        self.point2 = bezier_points.point2#
         self.point3 = bezier_points.point3#
         self.point4 = bezier_points.point4#
         self.delta_t = 0
-        #self.get_logger().info("go")
 
+    def position_callback(self, msg):
+        # 위치 데이터와 현재 시간을 저장
+        R = 6378137.0 # 지구 반지름
 
-    def goal_position_bezier(self):
-        #Edge case: if apriltag is not detected for delta_t = 300
-        self.xf_goal = np.asarray(self.goal_position) + np.dot(self.R, self.vehicle_length)
+        lat = msg.data[0]
+        lon = msg.data[1]
+        alt = msg.data[2]
+
+        d_lat_rad = math.radians(lat - self.vehicle_global_position_lla[0])
+        d_lon_rad = math.radians(lon - self.vehicle_global_position_lla[1])
+        lat_ref_rad = math.radians(self.vehicle_global_position_lla[0])
+        d_alt = alt - self.vehicle_global_position_lla[2]
+
+        x = d_lat_rad * R
+        y = d_lon_rad * math.cos(lat_ref_rad) * R
+        
+
+        position_x = self.vehicle_position[0] + x
+        position_y = self.vehicle_position[1] + y
+        position_z = self.vehicle_position[2] - d_alt # NED frame
+        current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
+
+        # 리스트에 저장 (최대 10개만 유지)
+        if len(self.x_data) >= self.est_len:
+            self.x_data.pop(0)  # 오래된 데이터 제거
+            self.y_data.pop(0)
+            self.z_data.pop(0)
+            self.time_data.pop(0)
+        self.x_data.append(position_x)
+        self.y_data.append(position_y)
+        self.z_data.append(position_z)
+        self.time_data.append(current_time)
+
+        self.x_data_edit = np.array(self.x_data) - self.x_data[0]
+        self.y_data_edit = np.array(self.y_data) - self.y_data[0]
+        self.z_data_edit = np.array(self.z_data) - self.z_data[0]
+
+        # 데이터가 두 개 이상일 때 선형 회귀 수행
+        if len(self.x_data_edit) >= 2:
+            # 데이터 준비
+            times = np.array(self.time_data).reshape(-1, 1)  # 2D 배열로 변환
+
+            # 선형 회귀 모델 생성 및 학습
+            model_x = LinearRegression()
+            model_x.fit(times, self.x_data_edit)
+            model_y = LinearRegression()
+            model_y.fit(times, self.y_data_edit)
+            model_z = LinearRegression()
+            model_z.fit(times, self.z_data_edit)
+
+            # 기울기 (속도)를 추출
+            self.velocity[0] = model_x.coef_[0]
+            self.velocity[1] = model_y.coef_[0]
+            self.velocity[2] = model_z.coef_[0]
+        
+        self.goal_position = [position_x, position_y, position_z]
+        self.xf_goal = np.asarray(self.goal_position) + self.velocity * np.linalg.norm(self.xf - self.vehicle_position) / self.vmax
         self.vf_goal = np.asfarray([0.0, 0.0, 0.5])
         self.init_position_goal = copy.deepcopy(self.vehicle_position)
         bezier_points_goal = points(self.init_position_goal, self.xf_goal, self.vehicle_velocity, self.vf_goal, hz)
@@ -277,7 +306,6 @@ class BezierControl(Node):
         self.z_goal = bezier_points_goal.bezier_z()
         self.count_goal = bezier_points_goal.count
         self.t_goal = bezier_points_goal.t
-
 
 
     def vehicle_position_callback(self, msg):
@@ -333,7 +361,7 @@ class BezierControl(Node):
         self.publisher_offboard_mode.publish(msg)
     
     def cmdloop_callback(self):
-        if self.phase_check and self.loop_on:
+        if self.loop_on:
             if self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD:
                 trajectory_msg = TrajectorySetpoint()
                 trajectory_msg.timestamp = int(Clock().now().nanoseconds / 1000)
@@ -382,7 +410,7 @@ class BezierControl(Node):
                     self.publisher_trajectory.publish(trajectory_msg)
                     self.print(f"apriltag bezier - count : {self.count},   delta_t : {self.delta_t},   xf : {self.xf},   vehicle_position : {self.vehicle_position}")
 
-                    if np.linalg.norm(self.vehicle_position[0]-self.xf[0]) < 1.2 and np.linalg.norm(self.vehicle_position[1]-self.xf[1]) < 1.2 and (self.vehicle_position[2]-self.xf[2] > -0.1 or self.vehicle_position[2]-self.xf_goal[2] > -0.5):
+                    if np.linalg.norm(self.vehicle_position[0]-self.xf[0]) < 1.2 and np.linalg.norm(self.vehicle_position[1]-self.xf[1]) < 1.2 and (self.vehicle_position[2]-self.xf[2] > -0.1):
                         self.land()
 
                 elif self.delta_t + int(1/self.timer_period) >= self.count-1 :
@@ -394,11 +422,12 @@ class BezierControl(Node):
                     trajectory_msg.velocity[2] = np.nan #self.vz[self.delta_t]
                     trajectory_msg.yaw = self.yaw_start
                     self.publisher_trajectory.publish(trajectory_msg)
+                    self.print(f"apriltag no bezier - xf : {self.xf},   vehicle_position : {self.vehicle_position}")
 
-                    if np.linalg.norm(self.vehicle_position[0]-self.xf[0]) < 1.2 and np.linalg.norm(self.vehicle_position[1]-self.xf[1]) < 1.2 and (self.vehicle_position[2]-self.xf[2] > -0.1 or self.vehicle_position[2]-self.xf_goal[2] > -0.5):
+                    if np.linalg.norm(self.vehicle_position[0]-self.xf[0]) < 1.2 and np.linalg.norm(self.vehicle_position[1]-self.xf[1]) < 1.2 and (self.vehicle_position[2]-self.xf[2] > -0.1):
                         self.land()
 
-                    self.print(f"apriltag no bezier - xf : {self.xf},   vehicle_position : {self.vehicle_position}")
+                    
 
         
 

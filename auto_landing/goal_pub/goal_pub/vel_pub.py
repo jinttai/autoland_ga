@@ -30,7 +30,7 @@ class EstVel(Node):
         msg = Float32MultiArray()
 
         # 랜덤 값을 self.velocity에 추가
-        self.velocity += np.random.normal(0, 0.1, 3)
+        #self.velocity += np.random.normal(0, 0.1, 3)
 
         # 위치 업데이트
         self.position_init += self.velocity

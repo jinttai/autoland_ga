@@ -31,12 +31,18 @@ class EstVel(Node):
         )
 
         self.clock = self.get_clock()
-        self.init_time = self.clock.now().seconds_nanoseconds()[0]
 
         # 위치 데이터와 시간을 저장할 리스트 (최대 10개 유지)
         self.x_data = []
         self.y_data = []
         self.z_data = []
+
+        self.x_data_edit = np.array([])
+        self.y_data_edit = np.array([])
+        self.z_data_edit = np.array([])
+
+        self.est_len = 10 #
+
         self.time_data = []
 
         # 속도 데이터
@@ -47,10 +53,10 @@ class EstVel(Node):
         position_x = msg.data[0]
         position_y = msg.data[1]
         position_z = msg.data[2]
-        current_time = self.clock.now().seconds_nanoseconds()[0] - self.init_time  # seconds로 변환
+        current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
 
         # 리스트에 저장 (최대 10개만 유지)
-        if len(self.x_data) >= 10:
+        if len(self.x_data) >= self.est_len:
             self.x_data.pop(0)  # 오래된 데이터 제거
             self.y_data.pop(0)
             self.z_data.pop(0)
@@ -60,23 +66,22 @@ class EstVel(Node):
         self.z_data.append(position_z)
         self.time_data.append(current_time)
 
-
+        self.x_data_edit = np.array(self.x_data) - self.x_data[0]
+        self.y_data_edit = np.array(self.y_data) - self.y_data[0]
+        self.z_data_edit = np.array(self.z_data) - self.z_data[0]
 
         # 데이터가 두 개 이상일 때 선형 회귀 수행
-        if len(self.x_data) >= 2:
+        if len(self.x_data_edit) >= 2:
             # 데이터 준비
             times = np.array(self.time_data).reshape(-1, 1)  # 2D 배열로 변환
-            positions_x = np.array(self.x_data)
-            positions_y = np.array(self.y_data)
-            positions_z = np.array(self.z_data)
 
             # 선형 회귀 모델 생성 및 학습
             model_x = LinearRegression()
-            model_x.fit(times, positions_x)
+            model_x.fit(times, self.x_data_edit)
             model_y = LinearRegression()
-            model_y.fit(times, positions_y)
+            model_y.fit(times, self.y_data_edit)
             model_z = LinearRegression()
-            model_z.fit(times, positions_z)
+            model_z.fit(times, self.z_data_edit)
 
             # 기울기 (속도)를 추출
             self.velocity[0] = model_x.coef_[0]
