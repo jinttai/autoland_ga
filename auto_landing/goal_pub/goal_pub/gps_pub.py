@@ -24,7 +24,7 @@ class EstVel(Node):
         self.timer = self.create_timer(1, self.timer_callback)
 
         self.velocity = np.array([1.0, 2.0, -1.0])  
-        self.position_init = np.array([0.0, 0.0, 0.0])  
+        self.position_init = np.array([0.0, 0.0, 0.0])  #lat, lon, alt
 
     def timer_callback(self):
         msg = Float32MultiArray()
@@ -33,7 +33,7 @@ class EstVel(Node):
         #self.velocity += np.random.normal(0, 0.1, 3)
 
         # 위치 업데이트
-        self.position_init += self.velocity
+        # self.position_init += self.velocity
 
         # numpy array를 리스트로 변환하여 msg.data에 할당
         msg.data = self.position_init.tolist()

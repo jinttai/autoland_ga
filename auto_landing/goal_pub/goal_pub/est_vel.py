@@ -1,4 +1,5 @@
 import rclpy
+import math
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from std_msgs.msg import Float32MultiArray
@@ -47,12 +48,29 @@ class EstVel(Node):
 
         # 속도 데이터
         self.velocity = [0.0, 0.0, 0.0]
+        self.vehicle_position = [0.0, 0.0, 0.0]
+        self.vehicle_global_position_lla = [0.0, 0.0, 0.0]
 
     def position_callback(self, msg):
         # 위치 데이터와 현재 시간을 저장
-        position_x = msg.data[0]
-        position_y = msg.data[1]
-        position_z = msg.data[2]
+        R = 6378137.0 # 지구 반지름
+
+        lat = msg.data[0]
+        lon = msg.data[1]
+        alt = msg.data[2]
+
+        d_lat_rad = math.radians(lat - self.vehicle_global_position_lla[0])
+        d_lon_rad = math.radians(lon - self.vehicle_global_position_lla[1])
+        lat_ref_rad = math.radians(self.vehicle_global_position_lla[0])
+        d_alt = alt - self.vehicle_global_position_lla[2]
+
+        x = d_lat_rad * R
+        y = d_lon_rad * math.cos(lat_ref_rad) * R
+        
+
+        position_x = self.vehicle_position[0] + x
+        position_y = self.vehicle_position[1] + y
+        position_z = self.vehicle_position[2] - d_alt # NED frame
         current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
 
         # 리스트에 저장 (최대 10개만 유지)
@@ -69,11 +87,12 @@ class EstVel(Node):
         self.x_data_edit = np.array(self.x_data) - self.x_data[0]
         self.y_data_edit = np.array(self.y_data) - self.y_data[0]
         self.z_data_edit = np.array(self.z_data) - self.z_data[0]
+        self.time_data_edit = np.array(self.time_data) - self.time_data[0]
 
         # 데이터가 두 개 이상일 때 선형 회귀 수행
         if len(self.x_data_edit) >= 2:
             # 데이터 준비
-            times = np.array(self.time_data).reshape(-1, 1)  # 2D 배열로 변환
+            times = np.array(self.time_data_edit).reshape(-1, 1)  # 2D 배열로 변환
 
             # 선형 회귀 모델 생성 및 학습
             model_x = LinearRegression()

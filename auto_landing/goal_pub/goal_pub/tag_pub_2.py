@@ -135,7 +135,7 @@ class TagPublisher(Node):
                     tag_body = np.array([-tag_pose.y, tag_pose.x, tag_pose.z])  
                     drone2tag_world = np.matmul(self.rotation_yaw,tag_body)
                     tag_world = drone2tag_world+self.drone_world
-                    self.current_waypoint = np.array([tag_world[0], tag_world[1], tag_world[2]-0.4, 0., 0., 0.5])
+                    self.current_waypoint = np.array([tag_world[0], tag_world[1], tag_world[2]-0.5, 0., 0., 0.5])
                     
                 
                 if self.first:

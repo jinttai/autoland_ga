@@ -3,16 +3,14 @@ import copy
 import numpy as np
 import logging
 import os
-import math
 from datetime import datetime, timedelta
 from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
-from sklearn.linear_model import LinearRegression
 
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
-from px4_msgs.msg import VehicleStatus, VehicleLocalPosition, VehicleGlobalPosition
+from px4_msgs.msg import VehicleStatus, VehicleLocalPosition
 from px4_msgs.msg import VehicleCommand
 from std_msgs.msg import Float32MultiArray, Bool
 
@@ -96,7 +94,6 @@ class points():
             point1 = self.xi
             point3 = self.xf - self.vf*t/3
             point4 = self.xf
-            # point2 = (self.xi + self.xf * 2)/3
             point2 = self.xi + (self.vi + 0.05 * (np.array([self.xf[0]-self.xi[0],self.xf[1]-self.xi[1],0])) / np.linalg.norm(np.array([self.xf[0]-self.xi[0],self.xf[1]-self.xi[1],0])))*t/3  
             flag = 1
         calibrated = ([t,point1,point2,point3,point4])
@@ -115,12 +112,18 @@ class BezierControl(Node):
             depth=1
         )
 
-        # Subscriber
         self.status_sub = self.create_subscription(
             VehicleStatus,
             '/fmu/out/vehicle_status',
             self.vehicle_status_callback,
             qos_profile
+        )
+
+        self.phase_sub = self.create_subscription(
+            Float32MultiArray,
+            '/auto_land_home_info',
+            self.phase_check_callback,
+            10
         )
 
         self.command_sub = self.create_subscription(
@@ -130,6 +133,7 @@ class BezierControl(Node):
             10
         )
 
+        # TODO : Replace with GPS data
         self.odometry_sub = self.create_subscription(
             VehicleLocalPosition,
             '/fmu/out/vehicle_local_position',
@@ -137,31 +141,15 @@ class BezierControl(Node):
             qos_profile
         )
 
-        self.vehicle_global_position_sub = self.create_subscription(
-            VehicleGlobalPosition, 
-            '/fmu/out/vehicle_global_position', 
-            self.vehicle_global_position_callback, 
-            qos_profile
-        )
-
-        self.sub = self.create_subscription(
-            Float32MultiArray,
-            '/land_position',
-            self.position_callback,
-            qos_profile
-        )
-
-        # Publisher
         self.publisher_offboard_mode = self.create_publisher(OffboardControlMode, '/fmu/in/offboard_control_mode', qos_profile)
         self.publisher_trajectory = self.create_publisher(TrajectorySetpoint, '/fmu/in/trajectory_setpoint', qos_profile)
         self.publisher_vehicle_command = self.create_publisher(VehicleCommand, '/fmu/in/vehicle_command', qos_profile)
+        self.publisher_landing = self.create_publisher(Bool, 'landing', 10)
         
         
-        # Timer
         self.timer_period = 0.02  # seconds
         self.timer = self.create_timer(self.timer_period, self.cmdloop_callback)
 
-        # Parameter
         self.nav_state = VehicleStatus.NAVIGATION_STATE_MAX
         self.delta_t = -1
         self.delta_t_goal = 0
@@ -172,7 +160,6 @@ class BezierControl(Node):
         self.pub = 0
         self.yaw_start = 0
         self.vehicle_length = np.array([0.5, 0.0, 0.0])
-        self.vehicle_global_position_NED = [0.0, 0.0, 0.0]
         self.R = np.array([[np.cos(self.yaw_start), -np.sin(self.yaw_start), 0],
                             [np.sin(self.yaw_start), np.cos(self.yaw_start), 0],
                             [0, 0, 1]])
@@ -185,20 +172,6 @@ class BezierControl(Node):
 
         self.goal_position = [0.0, 0.0, 0.0] # landing position in gps, x + 0.5, y, z + 0.4
         self.home_position = [0.0, 0.0, 0.0]
-
-        self.x_data = []
-        self.y_data = []
-        self.z_data = []
-
-        self.x_data_edit = np.array([])
-        self.y_data_edit = np.array([])
-        self.z_data_edit = np.array([])
-        self.time_data = np.array([])
-
-        self.est_len = 10
-        self.time_data = []
-        self.velocity = [0.0, 0.0, 0.0]
-        self.vmax = 1
 
         """
         Logging setup
@@ -216,17 +189,23 @@ class BezierControl(Node):
         print(*args, **kwargs)
         self.logger.info(*args, **kwargs)
 
-    """
-    Subscriber Callbacks
-    """
-    def vehicle_global_position_callback(self, msg):
-        self.vehicle_global_position_lla = [msg.lat, msg.lon, msg.altitude]
-
     def vehicle_status_callback(self, msg):
-        self.nav_state = msg.nav_state        
+        self.nav_state = msg.nav_state
+        
+    def phase_check_callback(self,msg):
+        self.phase_check = True
+        self.home_position = msg.data[0:3]
+        self.goal_position = self.home_position
+        self.yaw_start = msg.data[3]
+        self.R = np.array([[np.cos(self.yaw_start), -np.sin(self.yaw_start), 0],
+                            [np.sin(self.yaw_start), np.cos(self.yaw_start), 0],
+                            [0, 0, 1]])
+        self.print(f"self.yaw: {self.yaw_start}")
+        self.print(f"self.home: {self.home_position}")
+        self.print(f"shift: {np.dot(self.R, self.vehicle_length)}")
 
     def point_command_callback(self, msg):
-        self.xf = np.asfarray(msg.data[0:3]) + self.velocity * np.linalg.norm(self.xf - self.vehicle_position) / self.vmax
+        self.xf = np.asfarray(msg.data[0:3]) + np.dot(self.R, self.vehicle_length)
         self.vf = np.asfarray(msg.data[3:6])
         self.init_position = copy.deepcopy(self.vehicle_position)
         self.detect = 1
@@ -239,70 +218,16 @@ class BezierControl(Node):
         self.vz = bezier_points.bezier_vz()
         self.count = bezier_points.count
         self.t = bezier_points.t#
-        self.point1 = bezier_points.point1#
         self.point2 = bezier_points.point2#
+        self.point1 = bezier_points.point1#
         self.point3 = bezier_points.point3#
         self.point4 = bezier_points.point4#
         self.delta_t = 0
 
-    def position_callback(self, msg):
-        # 위치 데이터와 현재 시간을 저장
-        R = 6378137.0 # 지구 반지름
 
-        lat = msg.data[0]
-        lon = msg.data[1]
-        alt = msg.data[2]
-
-        d_lat_rad = math.radians(lat - self.vehicle_global_position_lla[0])
-        d_lon_rad = math.radians(lon - self.vehicle_global_position_lla[1])
-        lat_ref_rad = math.radians(self.vehicle_global_position_lla[0])
-        d_alt = alt - self.vehicle_global_position_lla[2]
-
-        x = d_lat_rad * R
-        y = d_lon_rad * math.cos(lat_ref_rad) * R
-        
-
-        position_x = self.vehicle_position[0] + x
-        position_y = self.vehicle_position[1] + y
-        position_z = self.vehicle_position[2] - d_alt # NED frame
-        current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
-
-        # 리스트에 저장 (최대 10개만 유지)
-        if len(self.x_data) >= self.est_len:
-            self.x_data.pop(0)  # 오래된 데이터 제거
-            self.y_data.pop(0)
-            self.z_data.pop(0)
-            self.time_data.pop(0)
-        self.x_data.append(position_x)
-        self.y_data.append(position_y)
-        self.z_data.append(position_z)
-        self.time_data.append(current_time)
-
-        self.x_data_edit = np.array(self.x_data) - self.x_data[0]
-        self.y_data_edit = np.array(self.y_data) - self.y_data[0]
-        self.z_data_edit = np.array(self.z_data) - self.z_data[0]
-        self.time_data_edit = np.array(self.time_data) - self.time_data[0]
-
-        # 데이터가 두 개 이상일 때 선형 회귀 수행
-        if len(self.x_data_edit) >= 2:
-            # 데이터 준비
-            times = np.array(self.time_data_edit).reshape(-1, 1)  # 2D 배열로 변환
-
-            # 선형 회귀 모델 생성 및 학습
-            model_x = LinearRegression()
-            model_x.fit(times, self.x_data_edit)
-            model_y = LinearRegression()
-            model_y.fit(times, self.y_data_edit)
-            model_z = LinearRegression()
-            model_z.fit(times, self.z_data_edit)
-
-            # 기울기 (속도)를 추출
-            self.velocity[0] = model_x.coef_[0]
-            self.velocity[1] = model_y.coef_[0]
-            self.velocity[2] = model_z.coef_[0]
-        
-        self.goal_position = [position_x, position_y, position_z]
-        self.xf_goal = np.asarray(self.goal_position) + self.velocity * np.linalg.norm(self.xf[2] - self.vehicle_position[2]) / self.vmax #하강 시간동안 이동한 착륙 위치 고려
+    def goal_position_bezier(self):
+        #Edge case: if apriltag is not detected for delta_t = 300
+        self.xf_goal = np.asarray(self.goal_position) + np.dot(self.R, self.vehicle_length)
         self.vf_goal = np.asfarray([0.0, 0.0, 0.5])
         self.init_position_goal = copy.deepcopy(self.vehicle_position)
         bezier_points_goal = points(self.init_position_goal, self.xf_goal, self.vehicle_velocity, self.vf_goal, hz)
@@ -311,6 +236,7 @@ class BezierControl(Node):
         self.z_goal = bezier_points_goal.bezier_z()
         self.count_goal = bezier_points_goal.count
         self.t_goal = bezier_points_goal.t
+
 
 
     def vehicle_position_callback(self, msg):
@@ -328,9 +254,12 @@ class BezierControl(Node):
         if self.delta_t_goal == 0:
             self.goal_position_bezier()
 
-    """
-    Publisher Callbacks
-    """
+
+    def land(self):
+        self.print("Landing")
+        self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
+        self.loop_on = 0    
+
     def publish_vehicle_command(self, command, **kwargs):
         """Publish a vehicle command."""
         msg = VehicleCommand()
@@ -362,19 +291,8 @@ class BezierControl(Node):
         msg.timestamp = int(self.get_clock().now().nanoseconds / 1000)
         self.publisher_offboard_mode.publish(msg)
     
-
-
-    def land(self):
-        self.print("Landing")
-        self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
-        self.loop_on = 0   
-
-
-    """
-    Main Timer Callback
-    """    
     def cmdloop_callback(self):
-        if self.loop_on:
+        if self.phase_check and self.loop_on:
             if self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD:
                 trajectory_msg = TrajectorySetpoint()
                 trajectory_msg.timestamp = int(Clock().now().nanoseconds / 1000)
@@ -393,6 +311,7 @@ class BezierControl(Node):
                     if self.delta_t_goal + int(1/self.timer_period) >= self.count_goal-1:
                         self.delta_t_goal = 0
 
+
                 elif self.delta_t == -1 and self.count_goal <= int(1/self.timer_period):
                     trajectory_msg.position[0] = self.xf_goal[0]#np.nan
                     trajectory_msg.position[1] = self.xf_goal[1]#np.nan
@@ -405,7 +324,7 @@ class BezierControl(Node):
                     self.print(f"edge case no bezier - delta_t_goal : {self.delta_t_goal},   xf_goal : {self.xf_goal},   vehicle_position : {self.vehicle_position}")
 
 
-                elif self.delta_t + int(1/self.timer_period) < self.count-1 and np.linalg.norm(self.vehicle_position[2]-self.xf[2]) > 0.5 and self.detect:   # if receiving command from the bezier curve
+                elif self.delta_t + int(1/self.timer_period) < self.count-1 and np.linalg.norm(self.vehicle_position[2]-self.xf[2]) > 0.7 and self.detect:   # if receiving command from the bezier curve
                     trajectory_msg.position[0] = self.x[self.delta_t + int(1/self.timer_period)]#np.nan
                     trajectory_msg.position[1] = self.y[self.delta_t + int(1/self.timer_period)]#np.nan
                     trajectory_msg.position[2] = self.z[self.delta_t + int(1/self.timer_period)]#np.nan
