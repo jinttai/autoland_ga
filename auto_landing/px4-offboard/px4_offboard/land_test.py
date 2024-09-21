@@ -19,8 +19,6 @@ from px4_msgs.msg import TrajectorySetpoint
 
 # import message for auto landing, YOLOv5
 from std_msgs.msg import Float32MultiArray
-from my_bboxes_msg.msg import VehiclePhase
-from my_bboxes_msg.msg import YoloObstacle
 
 # import other libraries
 import os
@@ -28,7 +26,6 @@ import time
 import serial
 import logging
 import numpy as np
-import pymap3d as p3d
 from datetime import datetime, timedelta
 
 class VehicleController(Node):
@@ -162,17 +159,6 @@ class VehicleController(Node):
         self.bezier_counter = 0
         self.bezier_points = None
 
-        # YOLOv5
-        self.obstacle = False
-        self.obstacle_x = 0
-        self.obstacle_y = 0
-        self.left_or_right = 0
-        self.ladder_count = 0
-        self.yolo_time_count = 0
-        self.yolo_wp_checker = 1
-        self.yolo_WP = [np.array([0.0, 0.0, 0.0]),np.array([0.0, 0.0, 0.0]),np.array([0.0, 0.0, 0.0]),np.array([0.0, 0.0, 0.0])]
-
-
         # UTC time
         self.utc_time = 0.0
         self.utc_year = 0
@@ -195,9 +181,6 @@ class VehicleController(Node):
         self.vehicle_global_position_subscriber = self.create_subscription(
             VehicleGlobalPosition, '/fmu/out/vehicle_global_position', self.vehicle_global_position_callback, qos_profile
         )
-        self.yolo_obstacle_subscriber = self.create_subscription(
-            YoloObstacle, '/yolo_obstacle', self.yolo_obstacle_callback, qos_profile
-        )
         self.gps_subscriber = self.create_subscription(
             SensorGps, '/fmu/out/vehicle_gps_position', self.vehicle_gps_callback, qos_profile
         )
@@ -214,14 +197,8 @@ class VehicleController(Node):
         self.trajectory_setpoint_publisher = self.create_publisher(
             TrajectorySetpoint, '/fmu/in/trajectory_setpoint', qos_profile
         )
-        self.vehicle_phase_publisher = self.create_publisher(
-            VehiclePhase, '/vehicle_phase', qos_profile
-        )
         self.start_yaw_publisher = self.create_publisher(
             Float32MultiArray, '/auto_land_home_info', 10
-        )
-        self.gimbal_angle_publisher = self.create_publisher(
-            Float32MultiArray, '/gimbal_angle', 10
         )
 
         """
@@ -229,8 +206,6 @@ class VehicleController(Node):
         """
         self.time_period = 0.05     # 20 Hz
         self.offboard_heartbeat = self.create_timer(self.time_period, self.offboard_heartbeat_callback)
-        self.vehicle_phase_publisher_timer = self.create_timer(self.time_period, self.vehicle_phase_publisher_callback)
-        self.gimbal_control_callback_timer = self.create_timer(self.time_period, self.gimbal_control_callback)
         self.main_timer = self.create_timer(self.time_period, self.main_timer_callback)
         
         print("Successfully executed: vehicle_controller")
@@ -324,12 +299,6 @@ class VehicleController(Node):
         """offboard heartbeat signal"""
         self.publish_offboard_control_mode(position=True)
 
-    # YOLOv5
-    def vehicle_phase_publisher_callback(self):
-        msg = VehiclePhase()
-        msg.phase = str(self.phase)
-        msg.subphase = str(self.subphase)
-        self.vehicle_phase_publisher.publish(msg)
 
 
 
@@ -359,14 +328,12 @@ class VehicleController(Node):
                     self.print('\n[subphase : landing align -> prepare landing]\n')
 
             elif self.subphase == 'prepare landing':
-                self.gimbal_counter += 1
                 self.publish_trajectory_setpoint(position_sp=self.goal_position, yaw_sp=self.goal_yaw)
-                if self.gimbal_counter >= self.gimbal_time / self.time_period:
-                    home_info = Float32MultiArray()
-                    home_info.data = list(self.home_position) + [self.start_yaw]
-                    self.start_yaw_publisher.publish(home_info)
-                    self.subphase = 'auto landing'
-                    self.print('\n[subphase : prepare landing -> auto landing]\n')
+                home_info = Float32MultiArray()
+                home_info.data = list(self.home_position) + [self.start_yaw]
+                self.start_yaw_publisher.publish(home_info)
+                self.subphase = 'auto landing'
+                self.print('\n[subphase : prepare landing -> auto landing]\n')
 
             elif self.subphase == 'auto landing':
                 if self.vehicle_status.arming_state == VehicleStatus.ARMING_STATE_DISARMED:

@@ -144,11 +144,11 @@ class BezierControl(Node):
             qos_profile
         )
 
-        self.sub = self.create_subscription(
+        self.position_sub = self.create_subscription(
             Float32MultiArray,
-            '/land_position',
-            self.position_callback,
-            qos_profile
+            '/land_position_xyz',
+            self.land_position_callback,
+            10
         )
 
         # Publisher
@@ -176,10 +176,14 @@ class BezierControl(Node):
         self.R = np.array([[np.cos(self.yaw_start), -np.sin(self.yaw_start), 0],
                             [np.sin(self.yaw_start), np.cos(self.yaw_start), 0],
                             [0, 0, 1]])
+        
+        self.clock = self.get_clock()
 
         #Way point
         self.vehicle_position = np.zeros(3)
         self.vehicle_velocity = np.zeros(3)
+        self.vehicle_global_position_lla = np.zeros(3)
+        
         self.xf = np.zeros(3)
         self.vf = np.zeros(3)
 
@@ -197,7 +201,7 @@ class BezierControl(Node):
 
         self.est_len = 10
         self.time_data = []
-        self.velocity = [0.0, 0.0, 0.0]
+        self.velocity = np.zeros(3)
         self.vmax = 1
 
         """
@@ -220,7 +224,7 @@ class BezierControl(Node):
     Subscriber Callbacks
     """
     def vehicle_global_position_callback(self, msg):
-        self.vehicle_global_position_lla = [msg.lat, msg.lon, msg.altitude]
+        self.vehicle_global_position_lla = [msg.lat, msg.lon, msg.alt]
 
     def vehicle_status_callback(self, msg):
         self.nav_state = msg.nav_state        
@@ -245,61 +249,16 @@ class BezierControl(Node):
         self.point4 = bezier_points.point4#
         self.delta_t = 0
 
-    def position_callback(self, msg):
-        # 위치 데이터와 현재 시간을 저장
-        R = 6378137.0 # 지구 반지름
+    def land_position_callback(self, msg):
+        self.print(f"msg.data : {msg.data}")
+    
+        position_x = msg.data[0]
+        position_y = msg.data[1]
+        position_z = msg.data[2]
 
-        lat = msg.data[0]
-        lon = msg.data[1]
-        alt = msg.data[2]
-
-        d_lat_rad = math.radians(lat - self.vehicle_global_position_lla[0])
-        d_lon_rad = math.radians(lon - self.vehicle_global_position_lla[1])
-        lat_ref_rad = math.radians(self.vehicle_global_position_lla[0])
-        d_alt = alt - self.vehicle_global_position_lla[2]
-
-        x = d_lat_rad * R
-        y = d_lon_rad * math.cos(lat_ref_rad) * R
-        
-
-        position_x = self.vehicle_position[0] + x
-        position_y = self.vehicle_position[1] + y
-        position_z = self.vehicle_position[2] - d_alt # NED frame
-        current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
-
-        # 리스트에 저장 (최대 10개만 유지)
-        if len(self.x_data) >= self.est_len:
-            self.x_data.pop(0)  # 오래된 데이터 제거
-            self.y_data.pop(0)
-            self.z_data.pop(0)
-            self.time_data.pop(0)
-        self.x_data.append(position_x)
-        self.y_data.append(position_y)
-        self.z_data.append(position_z)
-        self.time_data.append(current_time)
-
-        self.x_data_edit = np.array(self.x_data) - self.x_data[0]
-        self.y_data_edit = np.array(self.y_data) - self.y_data[0]
-        self.z_data_edit = np.array(self.z_data) - self.z_data[0]
-        self.time_data_edit = np.array(self.time_data) - self.time_data[0]
-
-        # 데이터가 두 개 이상일 때 선형 회귀 수행
-        if len(self.x_data_edit) >= 2:
-            # 데이터 준비
-            times = np.array(self.time_data_edit).reshape(-1, 1)  # 2D 배열로 변환
-
-            # 선형 회귀 모델 생성 및 학습
-            model_x = LinearRegression()
-            model_x.fit(times, self.x_data_edit)
-            model_y = LinearRegression()
-            model_y.fit(times, self.y_data_edit)
-            model_z = LinearRegression()
-            model_z.fit(times, self.z_data_edit)
-
-            # 기울기 (속도)를 추출
-            self.velocity[0] = model_x.coef_[0]
-            self.velocity[1] = model_y.coef_[0]
-            self.velocity[2] = model_z.coef_[0]
+        self.velocity[0] = msg.data[3]
+        self.velocity[1] = msg.data[4]
+        self.velocity[2] = msg.data[5]
         
         self.goal_position = [position_x, position_y, position_z]
         self.xf_goal = np.asarray(self.goal_position) + self.velocity * np.linalg.norm(self.xf[2] - self.vehicle_position[2]) / self.vmax #하강 시간동안 이동한 착륙 위치 고려
@@ -312,11 +271,13 @@ class BezierControl(Node):
         self.count_goal = bezier_points_goal.count
         self.t_goal = bezier_points_goal.t
 
+        
 
     def vehicle_position_callback(self, msg):
         self.vehicle_position[0] = msg.x
         self.vehicle_position[1] = msg.y
         self.vehicle_position[2] = msg.z
+        self.print(f"vehicle_position : {self.vehicle_position}")
         if self.delta_t > 0 and self.delta_t < self.count-1 :
             self.vehicle_velocity[0] = self.vx[self.delta_t]
             self.vehicle_velocity[1] = self.vy[self.delta_t]
@@ -325,8 +286,6 @@ class BezierControl(Node):
             self.vehicle_velocity[0] = msg.vx
             self.vehicle_velocity[1] = msg.vy
             self.vehicle_velocity[2] = msg.vz
-        if self.delta_t_goal == 0:
-            self.goal_position_bezier()
 
     """
     Publisher Callbacks

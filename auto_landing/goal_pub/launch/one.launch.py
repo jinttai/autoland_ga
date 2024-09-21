@@ -31,6 +31,9 @@ def generate_launch_description():
                 cmd=["ros2", "run", "goal_pub", "gps_pub"], output="screen"
             ),
             ExecuteProcess(
+                cmd=["ros2", "run", "goal_pub", "est_vel"], output="screen"
+            ),
+            ExecuteProcess(
                 cmd=[
                     "ros2", "run", "apriltag_ros", "apriltag_node",
                     "--ros-args",

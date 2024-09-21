@@ -6,6 +6,9 @@ from std_msgs.msg import Float32MultiArray
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
+
+from px4_msgs.msg import VehicleStatus, VehicleLocalPosition, VehicleGlobalPosition
+
 class EstVel(Node):
     def __init__(self):
         super().__init__('est_vel')
@@ -25,9 +28,23 @@ class EstVel(Node):
             qos_profile
         )
 
+        self.vehicle_global_position_sub = self.create_subscription(
+            VehicleGlobalPosition, 
+            '/fmu/out/vehicle_global_position', 
+            self.vehicle_global_position_callback, 
+            qos_profile
+        )
+
+        self.odometry_sub = self.create_subscription(
+            VehicleLocalPosition,
+            '/fmu/out/vehicle_local_position',
+            self.vehicle_position_callback,
+            qos_profile
+        )
+
         self.pub = self.create_publisher(
             Float32MultiArray,
-            '/est_vel',
+            '/land_position_xyz',
             qos_profile
         )
 
@@ -51,6 +68,15 @@ class EstVel(Node):
         self.vehicle_position = [0.0, 0.0, 0.0]
         self.vehicle_global_position_lla = [0.0, 0.0, 0.0]
 
+    def vehicle_global_position_callback(self, msg):
+        self.vehicle_global_position_lla = [msg.lat, msg.lon, msg.alt]
+
+    def vehicle_position_callback(self, msg):
+        self.vehicle_position[0] = msg.x
+        self.vehicle_position[1] = msg.y
+        self.vehicle_position[2] = msg.z
+
+
     def position_callback(self, msg):
         # 위치 데이터와 현재 시간을 저장
         R = 6378137.0 # 지구 반지름
@@ -71,6 +97,7 @@ class EstVel(Node):
         position_x = self.vehicle_position[0] + x
         position_y = self.vehicle_position[1] + y
         position_z = self.vehicle_position[2] - d_alt # NED frame
+        position_xyz = [position_x, position_y, position_z]
         current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
 
         # 리스트에 저장 (최대 10개만 유지)
@@ -109,10 +136,8 @@ class EstVel(Node):
 
             # 속도 데이터를 메시지로 변환하여 발행
             msg = Float32MultiArray()
-            msg.data = self.velocity
+            msg.data = position_xyz + self.velocity
             self.pub.publish(msg)
-
-            self.get_logger().info('Estimated velocity: %f, %f, %f, %f' % (self.velocity[0], self.velocity[1], self.velocity[2], current_time))
 
 def main(args=None):
     rclpy.init(args=args)

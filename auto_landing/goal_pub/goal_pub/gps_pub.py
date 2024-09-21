@@ -6,7 +6,7 @@ import numpy as np
 
 class EstVel(Node):
     def __init__(self):
-        super().__init__('est_vel')
+        super().__init__('gps_pub')
 
         # QoS 설정
         qos_profile = QoSProfile(
@@ -18,7 +18,7 @@ class EstVel(Node):
         self.pub = self.create_publisher(
             Float32MultiArray,
             '/land_position',
-            qos_profile
+            10
         )
 
         self.timer = self.create_timer(1, self.timer_callback)
