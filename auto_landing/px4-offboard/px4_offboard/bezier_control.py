@@ -214,8 +214,6 @@ class BezierControl(Node):
         logging.basicConfig(filename=log_file, level=logging.INFO, format='%(message)s')
         self.logger = logging.getLogger(__name__)
 
-
-
     def print(self, *args, **kwargs):
         print(*args, **kwargs)
         self.logger.info(*args, **kwargs)
@@ -250,7 +248,7 @@ class BezierControl(Node):
         self.delta_t = 0
 
     def land_position_callback(self, msg):
-        self.print(f"msg.data : {msg.data}")
+        self.print("msg.data")
     
         position_x = msg.data[0]
         position_y = msg.data[1]
@@ -269,15 +267,13 @@ class BezierControl(Node):
         self.y_goal = bezier_points_goal.bezier_y()
         self.z_goal = bezier_points_goal.bezier_z()
         self.count_goal = bezier_points_goal.count
-        self.t_goal = bezier_points_goal.t
-
-        
+        self.t_goal = bezier_points_goal.t       
 
     def vehicle_position_callback(self, msg):
         self.vehicle_position[0] = msg.x
         self.vehicle_position[1] = msg.y
         self.vehicle_position[2] = msg.z
-        self.print(f"vehicle_position : {self.vehicle_position}")
+
         if self.delta_t > 0 and self.delta_t < self.count-1 :
             self.vehicle_velocity[0] = self.vx[self.delta_t]
             self.vehicle_velocity[1] = self.vy[self.delta_t]
@@ -320,14 +316,11 @@ class BezierControl(Node):
         msg.direct_actuator = kwargs.get("direct_actuator", False)
         msg.timestamp = int(self.get_clock().now().nanoseconds / 1000)
         self.publisher_offboard_mode.publish(msg)
-    
-
 
     def land(self):
         self.print("Landing")
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
         self.loop_on = 0   
-
 
     """
     Main Timer Callback

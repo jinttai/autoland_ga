@@ -220,7 +220,7 @@ class VehicleController(Node):
         print(*args, **kwargs)
         self.logger.info(*args, **kwargs)
 
-    def convert_global_to_local_waypoint(self, home_position_gps):
+    def set_home(self, home_position_gps):
         self.home_position = self.pos   # set home position
         self.start_yaw = self.yaw     # set initial yaw
         self.WP.append(np.array([-self.camera_to_center * np.cos(self.start_yaw), -self.camera_to_center * np.sin(self.start_yaw), -self.auto_landing_height]))  # set the camera's position to the home position
@@ -305,7 +305,7 @@ class VehicleController(Node):
     def main_timer_callback(self):
         if self.phase == 0:
             if self.vehicle_status.arming_state == VehicleStatus.ARMING_STATE_ARMED:
-                self.convert_global_to_local_waypoint(self.pos_gps)
+                self.set_home(self.pos_gps)
                 self.phase = 1
                 self.subphase = 'position'
                 self.print('\n[phase : 0 -> 1]')
