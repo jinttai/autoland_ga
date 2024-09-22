@@ -115,8 +115,7 @@ class TagPublisher(Node):
             self.print(f"tag_world : {tag_world}    drone_world : {self.drone_world}    id : {frame_id}")
 
         except Exception as e:
-            self.print("apriltag not dtected")
-            self.print(f"error : {e}")
+            error = e
     
     def timer_callback(self):
         if self.first == False:

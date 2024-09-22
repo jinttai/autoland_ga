@@ -1,7 +1,7 @@
 import rclpy
 import math
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from std_msgs.msg import Float32MultiArray
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -15,8 +15,9 @@ class EstVel(Node):
 
         # QoS 설정
         qos_profile = QoSProfile(
-            reliability=ReliabilityPolicy.BEST_EFFORT,
-            history=HistoryPolicy.KEEP_LAST,
+            reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+            durability=QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+            history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
             depth=1
         )
 
@@ -97,7 +98,7 @@ class EstVel(Node):
         position_x = self.vehicle_position[0] + x
         position_y = self.vehicle_position[1] + y
         position_z = self.vehicle_position[2] - d_alt # NED frame
-        position_xyz = [position_x, position_y, position_z]
+        position_xyz = [0.0, 0.0, 0.0]# [position_x, position_y, position_z]
         current_time = self.clock.now().seconds_nanoseconds()[0]  # seconds로 변환
 
         # 리스트에 저장 (최대 10개만 유지)
@@ -117,7 +118,7 @@ class EstVel(Node):
         self.time_data_edit = np.array(self.time_data) - self.time_data[0]
 
         # 데이터가 두 개 이상일 때 선형 회귀 수행
-        if len(self.x_data_edit) >= 2:
+        if len(self.x_data_edit) >= 5:
             # 데이터 준비
             times = np.array(self.time_data_edit).reshape(-1, 1)  # 2D 배열로 변환
 
@@ -136,7 +137,7 @@ class EstVel(Node):
 
             # 속도 데이터를 메시지로 변환하여 발행
             msg = Float32MultiArray()
-            xyz_vel = position_xyz# + self.velocity
+            xyz_vel = position_xyz + self.velocity
             msg.data = xyz_vel
             self.pub.publish(msg)
 

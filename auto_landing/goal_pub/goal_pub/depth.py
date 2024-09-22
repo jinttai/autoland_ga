@@ -36,12 +36,12 @@ class BezierControl(Node):
             Float32MultiArray,
             '/land_full',
             self.land_position_callback,
-            10
+            qos_profile
         )
 
         
     def land_position_callback(self, msg):
-        asd
+        print("ok")
 
 
 def main(args=None):

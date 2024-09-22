@@ -293,6 +293,7 @@ class BezierControl(Node):
     
     def cmdloop_callback(self):
         if self.phase_check and self.loop_on:
+            self.publish_offboard_control_mode(position=True)
             if self.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD:
                 trajectory_msg = TrajectorySetpoint()
                 trajectory_msg.timestamp = int(Clock().now().nanoseconds / 1000)
