@@ -44,7 +44,7 @@ class EstVel(Node):
 
         self.pub = self.create_publisher(
             Float32MultiArray,
-            '/land_position_xyz',
+            '/land_full',
             qos_profile
         )
 
@@ -136,7 +136,8 @@ class EstVel(Node):
 
             # 속도 데이터를 메시지로 변환하여 발행
             msg = Float32MultiArray()
-            msg.data = position_xyz + self.velocity
+            xyz_vel = position_xyz# + self.velocity
+            msg.data = xyz_vel
             self.pub.publish(msg)
 
 def main(args=None):

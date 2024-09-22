@@ -1,92 +1,58 @@
-import numpy as np
 import rclpy
+import copy
+import numpy as np
+import logging
+import os
+import math
+from datetime import datetime, timedelta
 from rclpy.node import Node
-from sensor_msgs.msg import Image as ImgMsg
-from bboxes_ex_msgs.msg import BoundingBoxes as BboxMsg
-from zed_interfaces.msg import DepthInfoStamped as DepthMsg
-from cv_bridge import CvBridge
-import pyzed.sl as sl
+from rclpy.clock import Clock
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
+from sklearn.linear_model import LinearRegression
 
-class TagPublisher(Node):
+from px4_msgs.msg import OffboardControlMode
+from px4_msgs.msg import TrajectorySetpoint
+from px4_msgs.msg import VehicleStatus, VehicleLocalPosition, VehicleGlobalPosition
+from px4_msgs.msg import VehicleCommand
+from std_msgs.msg import Float32MultiArray, Bool
+
+hz = 50 #system hz, must be synchronized to the main callback frequency
+
+
+
+class BezierControl(Node):
+
     def __init__(self):
-        super().__init__('tag_pose')        
-        
-        self.img_subscription = self.create_subscription(
-            ImgMsg,
-            'zed2i/zed_node/depth/depth_registered',
-            self.img_callback,
-            10
-        )
-        
-        self.bbox_subscription = self.create_subscription(
-            BboxMsg,
-            'yolov5/bounding_boxes',
-            self.bbox_callback,
-            10
+        super().__init__('minimal_publisher')
+        self.count = 0
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+            durability=QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+            history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+            depth=1
         )
 
-        self.depth_subscription = self.create_subscription(
-            DepthMsg,
-            'zed2i/zed_node/depth/depth_info',
-            self.depth_callback,
+        self.position_sub = self.create_subscription(
+            Float32MultiArray,
+            '/land_full',
+            self.land_position_callback,
             10
         )
-               
-        print("Hmmmmmmm")
+
         
-        
-    def bbox_callback(self, msg):
-        try:
-            print("bbox callback")
-            bbox = msg.bounding_boxes[0]
-            self.prob = bbox.probability
-            # self.get_logger().info("%s" % self.prob)
-            self.bbox = [bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax]
-        except:
-            self.get_logger().info("Hey hey~ cross not detected")
+    def land_position_callback(self, msg):
+        asd
 
-    def img_callback(self, msg):
-        try:
-            print("img callback")
-            # self.get_logger().info("%s" % self.prob)
-            # if self.prob > 0.8:
-            #     image = sl.Mat()
-            # depth_map = sl.Mat()
-            # runtime_parameters = sl.RuntimeParameters()
-            # zed = sl.Camera()
-            # if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS :
-            #     # A new image and depth is available if grab() returns SUCCESS
-            #     # zed.retrieve_image(image, sl.VIEW.LEFT) # Retrieve left image
-            #     zed.retrieve_measure(depth_map, sl.MEASURE.DEPTH) # Retrieve depth
-            #     depth = depth_map[self.bbox[0],self.bbox[1]]
-            #     print(depth)
-            bridge = CvBridge()
-            img = bridge.imgmsg_to_cv2(msg,desired_encoding='passthrough')
-            # minP = img[self.bbox[0],self.bbox[1]]
-            # maxP = img[self.bbox[2],self.bbox[3]]
-            # minD = self.min_d + self.depthPerPixel * minP
-            # maxD = self.min_d + self.depthPerPixel * maxP
-            # print(minD)
-
-        except:
-            self.get_logger().info("Oh no~ zed2i image not detected")
-
-    def depth_callback(self, msg):
-        try:
-            print("info callback")
-            self.min_d = msg.min_depth
-            self.max_d = msg.max_depth
-            self.depthPerPixel = (self.max_d - self.min_d) / 255
-        except:
-            self.get_logger().info("Ummm,,,, depth info not received")
 
 def main(args=None):
     rclpy.init(args=args)
-    tagpublisher = TagPublisher()
-    rclpy.spin(tagpublisher)
 
-    sub.destroy_node()
-    rclpy.shutdown
+    bezier_control = BezierControl()
+
+    rclpy.spin(bezier_control)
+
+    bezier_control.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

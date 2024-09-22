@@ -29,13 +29,6 @@ class EstVel(Node):
     def timer_callback(self):
         msg = Float32MultiArray()
 
-        # 랜덤 값을 self.velocity에 추가
-        #self.velocity += np.random.normal(0, 0.1, 3)
-
-        # 위치 업데이트
-        # self.position_init += self.velocity
-
-        # numpy array를 리스트로 변환하여 msg.data에 할당
         msg.data = self.position_init.tolist()
 
         # 메시지 발행

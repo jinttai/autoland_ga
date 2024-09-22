@@ -1,25 +1,3 @@
 {
-    "ros.distro": "foxy",
-    "python.autoComplete.extraPaths": [
-        "/home/chengu/ga_ws/build/px4_offboard",
-        "/home/chengu/ga_ws/install/px4_offboard/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/build/goal_pub",
-        "/home/chengu/ga_ws/install/goal_pub/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/install/px4_msgs/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/build/camera_calibration/src",
-        "/home/chengu/ga_ws/install/camera_calibration/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/install/apriltag_msgs/lib/python3.8/site-packages",
-        "/opt/ros/foxy/lib/python3.8/site-packages"
-    ],
-    "python.analysis.extraPaths": [
-        "/home/chengu/ga_ws/build/px4_offboard",
-        "/home/chengu/ga_ws/install/px4_offboard/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/build/goal_pub",
-        "/home/chengu/ga_ws/install/goal_pub/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/install/px4_msgs/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/build/camera_calibration/src",
-        "/home/chengu/ga_ws/install/camera_calibration/lib/python3.8/site-packages",
-        "/home/chengu/ga_ws/install/apriltag_msgs/lib/python3.8/site-packages",
-        "/opt/ros/foxy/lib/python3.8/site-packages"
-    ]
+    "ros.distro": "foxy"
 }
