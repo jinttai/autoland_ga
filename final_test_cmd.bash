@@ -12,10 +12,16 @@ echo "CSI camera node started."
 # Start Apriltag detection & Autolanding
 echo "------------------------------"
 echo "Starting Apriltag detection & Autolanding..."
-ros2 launch goal_pub one.launch.py &
+ros2 launch goal_pub one_test.launch.py &
 sleep 5
 echo "Apriltag detection & Autolanding started."
 
+# Start YOLO detection
+echo "------------------------------"
+echo "Starting YOLO detection..."
+ros2 run yolo_detection yolo_detector &
+sleep 5
+echo "YOLO detection started."
 
 # Keep the script running to maintain background processes
 wait

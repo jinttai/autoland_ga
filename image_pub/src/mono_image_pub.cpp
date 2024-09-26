@@ -108,18 +108,18 @@ class MonoImagePublisher : public rclcpp::Node
 
             // Distortion matrix
             cam_info_msg.d.resize(5);
-            cam_info_msg.d[0] = 0.018063;
-            cam_info_msg.d[1] = -0.063093;
-            cam_info_msg.d[2] = -0.000450;
-            cam_info_msg.d[3] = 0.001720;
+            cam_info_msg.d[0] = -0.357087;
+            cam_info_msg.d[1] = 0.139928;
+            cam_info_msg.d[2] = -0.000750;
+            cam_info_msg.d[3] = -0.001022;
             cam_info_msg.d[4] = 0.0;
 
             // Intrinsic matrix
             cam_info_msg.k.fill(0.0);
-            cam_info_msg.k[0] = 1263.504838;
-            cam_info_msg.k[2] = 982.091350;
-            cam_info_msg.k[4] = 1263.259169;
-            cam_info_msg.k[5] = 548.312618;
+            cam_info_msg.k[0] = 1599.127014;
+            cam_info_msg.k[2] = 862.064187;
+            cam_info_msg.k[4] = 1602.474039;
+            cam_info_msg.k[5] = 455.275517;
             cam_info_msg.k[8] = 1.0;
 
             // Rectification matrix
@@ -139,10 +139,10 @@ class MonoImagePublisher : public rclcpp::Node
 
             // Projection matrix
             cam_info_msg.p.fill(0.0);
-            cam_info_msg.p[0] = 1248.006104;
-            cam_info_msg.p[2] = 987.309636;
-            cam_info_msg.p[5] = 1264.111328;
-            cam_info_msg.p[6] = 547.503061;
+            cam_info_msg.p[0] = 1363.845703;
+            cam_info_msg.p[2] = 826.739988;
+            cam_info_msg.p[5] = 1524.892822;
+            cam_info_msg.p[6] = 446.826155;
             cam_info_msg.p[3] = 0.0;
             cam_info_msg.p[10] = 1.0;
             

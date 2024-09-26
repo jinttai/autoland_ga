@@ -12,7 +12,7 @@ echo "CSI camera node started."
 # Start Apriltag detection & Autolanding
 echo "------------------------------"
 echo "Starting Apriltag detection & Autolanding..."
-ros2 launch goal_pub one.launch.py &
+ros2 launch goal_pub one_test.launch.py &
 sleep 5
 echo "Apriltag detection & Autolanding started."
 
