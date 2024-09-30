@@ -82,11 +82,11 @@ class TagPublisher(Node):
         self.drone_world = [0.0, 0.0, 0.0]
         self.waypoint = [0.0, 0.0, 0.0, 0.0, 0.0, 0.5]
         
-        self.camera_position = [0.0, 0.0, 0.0] # 카메라 위치 (카메라의 중심점) x: 앞으로, y: 오른쪽으로, z: 아래로
+        self.camera_position = [-0.1, 0.0, 0.6] # 카메라 위치 (카메라의 중심점) x: 앞으로, y: 오른쪽으로, z: 아래로
 
         # timer
 
-        self.timer = self.create_timer(3, self.timer_callback)
+        self.timer = self.create_timer(1, self.timer_callback)
 
         # logger
 
@@ -109,7 +109,7 @@ class TagPublisher(Node):
             tag_body = np.array([-tag_pose.y, tag_pose.x, tag_pose.z])  # 카메라의 위가 앞을 바라보고 있을 때
             drone2tag_world = np.matmul(self.rotation_yaw,tag_body)
             tag_world = drone2tag_world + self.drone_world + self.camera_position
-            current_waypoint = [tag_world[0], tag_world[1], tag_world[2]-0.5, 0., 0., 0.5] 
+            current_waypoint = [tag_world[0], tag_world[1], tag_world[2], 0., 0., 0.5] 
             self.waypoint = current_waypoint
             
             self.print(f"tag_world : {tag_world}    drone_world : {self.drone_world}    id : {frame_id}")

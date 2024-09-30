@@ -95,6 +95,8 @@ class points():
             point3 = self.xf - self.vf*t/3
             point4 = self.xf
             point2 = self.xi + (self.vi + 0.05 * (np.array([self.xf[0]-self.xi[0],self.xf[1]-self.xi[1],0])) / np.linalg.norm(np.array([self.xf[0]-self.xi[0],self.xf[1]-self.xi[1],0])))*t/3  
+            
+            point2[2] = (self.xf[2] + self.xi[2] * 2)/3
             flag = 1
         calibrated = ([t,point1,point2,point3,point4])
         return calibrated
@@ -338,8 +340,6 @@ class BezierControl(Node):
                     self.publisher_trajectory.publish(trajectory_msg)
                     self.print(f"apriltag bezier - count : {self.count},   delta_t : {self.delta_t},   xf : {self.xf},   vehicle_position : {self.vehicle_position}")
 
-                    if np.linalg.norm(self.vehicle_position[0]-self.xf[0]) < 1.2 and np.linalg.norm(self.vehicle_position[1]-self.xf[1]) < 1.2 and (self.vehicle_position[2]-self.xf[2] > -0.1):
-                        self.land()
 
                 elif self.delta_t + int(1/self.timer_period) >= self.count-1 :
                     trajectory_msg.position[0] = self.xf[0]
@@ -352,8 +352,6 @@ class BezierControl(Node):
                     self.publisher_trajectory.publish(trajectory_msg)
                     self.print(f"apriltag no bezier - xf : {self.xf},   vehicle_position : {self.vehicle_position}")
 
-                    if np.linalg.norm(self.vehicle_position[0]-self.xf[0]) < 1.2 and np.linalg.norm(self.vehicle_position[1]-self.xf[1]) < 1.2 and (self.vehicle_position[2]-self.xf[2] > -0.1):
-                        self.land()
 
                     
 

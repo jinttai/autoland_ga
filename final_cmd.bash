@@ -1,5 +1,6 @@
 #!/bin/bash
 cd ~/ga_ws
+source /opt/ros/foxy/setup.bash 
 source ./install/local_setup.bash
 
 # Start USB camera node

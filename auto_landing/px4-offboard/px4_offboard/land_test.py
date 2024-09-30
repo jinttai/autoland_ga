@@ -23,7 +23,6 @@ from std_msgs.msg import Float32MultiArray
 # import other libraries
 import os
 import time
-import serial
 import logging
 import numpy as np
 from datetime import datetime, timedelta

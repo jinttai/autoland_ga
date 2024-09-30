@@ -1,5 +1,6 @@
 #!/bin/bash
 cd ~/ga_ws
+source /opt/ros/foxy/setup.bash 
 source ./install/local_setup.bash
 
 # Start USB camera node
@@ -15,13 +16,6 @@ echo "Starting Apriltag detection & Autolanding..."
 ros2 launch goal_pub one_test.launch.py &
 sleep 5
 echo "Apriltag detection & Autolanding started."
-
-# Start YOLO detection
-echo "------------------------------"
-echo "Starting YOLO detection..."
-ros2 run yolo_detection yolo_detector &
-sleep 5
-echo "YOLO detection started."
 
 # Keep the script running to maintain background processes
 wait
