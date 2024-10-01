@@ -1,1 +1,24 @@
 Auto Latitude	Longtitude	 Altitude	  UTC Year	 UTC Month	  UTC Day	  UTC Hour	  UTC Min	  UTC Sec	   UTC ms  WPT
+
+[phase : 0 -> 1]
+[subphase : before flight -> position]
+
+
+[subphase : position -> landing align]
+
+
+[subphase : landing align -> prepare landing]
+
+
+[subphase : prepare landing -> auto landing]
+
+--------------------------------------------
+horizontal_error: 0.06615946761374802
+--------------------------------------------
+
+[subphase : auto landing -> mission complete]
+
+
+Mission complete
+Congratulations!
+

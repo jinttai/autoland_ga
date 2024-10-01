@@ -94,9 +94,8 @@ class points():
             point1 = self.xi
             point3 = self.xf - self.vf*t/3
             point4 = self.xf
-            point2 = self.xi + (self.vi + 0.05 * (np.array([self.xf[0]-self.xi[0],self.xf[1]-self.xi[1],0])) / np.linalg.norm(np.array([self.xf[0]-self.xi[0],self.xf[1]-self.xi[1],0])))*t/3  
+            point2 = self.xi + (self.vi + 0.15 * (np.array(self.xf-self.xi)) / np.linalg.norm(np.array(self.xf-self.xi)))*t/3  
             
-            point2[2] = (self.xf[2] + self.xi[2] * 2)/3
             flag = 1
         calibrated = ([t,point1,point2,point3,point4])
         return calibrated
@@ -161,7 +160,7 @@ class BezierControl(Node):
         self.loop_on = 1
         self.pub = 0
         self.yaw_start = 0
-        self.vehicle_length = np.array([0.5, 0.0, 0.0])
+        self.vehicle_length = np.array([0.0, 0.0, 0.0])
         self.R = np.array([[np.cos(self.yaw_start), -np.sin(self.yaw_start), 0],
                             [np.sin(self.yaw_start), np.cos(self.yaw_start), 0],
                             [0, 0, 1]])

@@ -13,7 +13,7 @@ Auto Latitude	Longtitude	 Altitude	  UTC Year	 UTC Month	  UTC Day	  UTC Hour	  
 [subphase : prepare landing -> auto landing]
 
 --------------------------------------------
-horizontal_error: 0.3996454307908788
+horizontal_error: 0.04033296797671849
 --------------------------------------------
 
 [subphase : auto landing -> mission complete]

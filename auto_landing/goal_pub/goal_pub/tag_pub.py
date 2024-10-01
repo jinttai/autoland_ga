@@ -107,10 +107,12 @@ class TagPublisher(Node):
             frame_id = msg.transforms[0].child_frame_id
             tag_pose = transform.translation
             tag_body = np.array([-tag_pose.y, tag_pose.x, tag_pose.z])  # 카메라의 위가 앞을 바라보고 있을 때
-            drone2tag_world = np.matmul(self.rotation_yaw,tag_body)
+            self.rotation = quat2R(self.drone_q)
+            drone2tag_world = np.matmul(self.rotation,tag_body)
             tag_world = drone2tag_world + self.drone_world + self.camera_position
-            current_waypoint = [tag_world[0], tag_world[1], tag_world[2], 0., 0., 0.5] 
+            current_waypoint = [tag_world[0], tag_world[1], tag_world[2]+0.05, 0., 0., 0.5] 
             self.waypoint = current_waypoint
+            self.first = False
             
             self.print(f"tag_world : {tag_world}    drone_world : {self.drone_world}    id : {frame_id}")
 

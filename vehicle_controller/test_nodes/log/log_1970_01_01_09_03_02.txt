@@ -3,6 +3,3 @@ Auto Latitude	Longtitude	 Altitude	  UTC Year	 UTC Month	  UTC Day	  UTC Hour	  
 [phase : 0 -> 1]
 [subphase : before flight -> position]
 
-
-[subphase : position -> landing align]
-

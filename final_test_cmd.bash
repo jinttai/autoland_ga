@@ -10,6 +10,7 @@ ros2 run image_pub mono_image_pub &
 sleep 5
 echo "CSI camera node started."
 
+
 # Start Apriltag detection & Autolanding
 echo "------------------------------"
 echo "Starting Apriltag detection & Autolanding..."

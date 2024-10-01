@@ -19,4 +19,4 @@
     tag:
       ids: [0, 1]            # tag ID
       frames: [id_0, id_1]  # optional frame name
-      sizes: [0.089, 1.33]   # optional tag-specific edge size
+      sizes: [0.026, 0.39]   # optional tag-specific edge size
