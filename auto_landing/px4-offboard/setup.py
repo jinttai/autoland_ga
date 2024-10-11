@@ -29,10 +29,8 @@ setup(
                 'offboard_control = px4_offboard.offboard_control:main',
                 'visualizer = px4_offboard.visualizer:main',
                 'bezier_control = px4_offboard.bezier_control:main',
-                'bezier_control_past = px4_offboard.bezier_control_past:main',
                 'generator = px4_offboard.generator:main',
                 'land_test = px4_offboard.land_test:main',
-                'land_test_gps = px4_offboard.land_test_gps:main',
         ],
     },
 )

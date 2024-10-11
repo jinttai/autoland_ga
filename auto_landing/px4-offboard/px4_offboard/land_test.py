@@ -47,7 +47,6 @@ class VehicleController(Node):
         """
         # given constants
         self.camera_to_center = 0.0                             # distance from camera to center of the vehicle
-        self.landing_height = 5.0                               # prepare auto landing at 5m
         self.corridor_radius = 2.0
 
         # acceptance constants
@@ -70,16 +69,7 @@ class VehicleController(Node):
         # alignment constants
         self.yaw_speed = 0.1                                    # 0.1 rad = 5.73 deg
 
-        # yolo constants
-        self.image_size = np.array([1280, 720])
-        self.critical_section = 0.1                             # check the middle 20% of the image in the horizontal direction
-        self.yolo_hz = 10                                       # theoretically 30Hz, but 10Hz in practice
-        self.quick_time = 1.0                                   # 1 seconds
-        self.focus_time = 5.0                                   # 5 seconds
 
-        # auto landing constants
-        self.gimbal_time = 5.0
-        self.auto_landing_height = 10.0
 
         """
         2. Logging setup
@@ -113,26 +103,16 @@ class VehicleController(Node):
         self.home_position = np.array([0.0, 0.0, 0.0])
         self.start_yaw = 30.0
 
-        for i in range(1, 8):
-            self.declare_parameter(f'gps_WP{i}', None)
-            gps_wp_value = self.get_parameter(f'gps_WP{i}').value
-            self.gps_WP.append(np.array(gps_wp_value))
-
+       
         """
         4. Phase and subphase
         """
         # phase description
         # 0 : before flight
-        # i >= 1 : moving toward WP_i
-        # 9 : landing
+        
         self.phase = 0
 
-        # subphase description
-        # takeoff -> heading to WP[1] -> collecting log info -> heading to WP[2] -> collecting log info -> ... -> heading to WP[7]
-        # pause -> align to vertiport -> go slow -> landing align -> auto landing (obstacle not detected)
-        # pause -> align to vertiport -> go slow -> pause -> align -> detecting obstacle -> avoiding obstacle -> landing align -> auto landing (obstacle detected and avoided)
-        # pause -> align to vertiport -> go slow -> pause -> align -> detecting obstacle -> avoiding obstacle -> pause -> ... (obstacle detected and avoided but detected again)
-        # pause -> align to vertiport -> go slow -> pause -> align -> detecting obstacle -> go slow -> ... (thought obstacle was detected but it was not)
+       
         self.subphase = 'before flight'
 
         """
@@ -142,6 +122,7 @@ class VehicleController(Node):
         self.auto = 0                           # 0: manual, 1: auto
         self.vehicle_status = VehicleStatus()
         self.vehicle_local_position = VehicleLocalPosition()
+        self.detect_apriltag = False
 
         # vehicle position, velocity, and yaw
         self.pos = np.array([0.0, 0.0, 0.0])        # local
@@ -183,6 +164,9 @@ class VehicleController(Node):
         self.gps_subscriber = self.create_subscription(
             SensorGps, '/fmu/out/vehicle_gps_position', self.vehicle_gps_callback, qos_profile
         )
+        self.tag_subscriber = self.create_subscription(
+            Float32MultiArray, 'bezier_waypoint', self.tag_callback, 10
+        )
 
         """
         7. Create Publishers
@@ -222,7 +206,7 @@ class VehicleController(Node):
     def set_home(self, home_position_gps):
         self.home_position = self.pos   # set home position
         self.start_yaw = self.yaw     # set initial yaw
-        self.WP.append(np.array([-self.camera_to_center * np.cos(self.start_yaw), -self.camera_to_center * np.sin(self.start_yaw), -self.auto_landing_height]))  # set the camera's position to the home position
+        self.WP.append(np.array([-self.camera_to_center * np.cos(self.start_yaw), -self.camera_to_center * np.sin(self.start_yaw), 0.0]))  # set the camera's position to the home position
 
     def generate_bezier_curve(self, xi, xf, vmax):
         # reset counter
@@ -272,33 +256,38 @@ class VehicleController(Node):
                 yaw_sp = self.yaw + np.sign(np.sin(goal_yaw - self.yaw)) * self.yaw_speed
             )
 
-    def get_braking_position(self, pos, vel):
-        braking_distance = (np.linalg.norm(vel))**2 / (2 * self.max_acceleration)
-        return pos + braking_distance * vel / np.linalg.norm(vel)
-    
-    def get_bearing_to_next_waypoint(self, now, next):
-        now2d = now[0:2]
-        next2d = next[0:2]
-        direction = (next2d - now2d) / np.linalg.norm(next2d - now2d) # NED frame
-        yaw = np.arctan2(direction[1], direction[0])
-        return yaw
-    
-    def find_indices_below_threshold(self, arr, threshold):
-        return [i for i, value in enumerate(arr) if value < threshold]
-    
-    def intersection(self, arr1, arr2):
-        return [x for x in arr1 if x in arr2]
-    
+    def make_patrol_trajectory(self, xi, length, vmax):
+        # reset counter
+        self.patrol_counter = 0
 
+        # total time calculation
+        nominal_time = length / vmax    
+        if nominal_time <= self.bezier_minimum_time:
+            nominal_time = self.bezier_minimum_time
+     
+        self.patrol_counter = int(1 / self.time_period) - 1
+
+        # linear trajectory
+        self.num_lin = int(nominal_time / self.time_period)
+        lin_trajectory = np.linspace(0, 1, self.num_lin).reshape(-1, 1)
+        lin_trajectory = xi + lin_trajectory * length * np.array([1, 0, 0])
+        
+        # circle curve
+        self.num_circle = int(nominal_time * 2 * 3.14 / self.time_period)
+        circle_trajectory = np.array([])
+        for i in range(self.num_circle):
+            circle_point = xi + length * np.array([np.cos(2 * np.pi * i / self.num_circle), np.sin(2 * np.pi * i / self.num_circle), 0])
+
+            combined_trajectory = np.vstack((lin_trajectory, circle_point))
+
+        return combined_trajectory
     
     """
     Callback functions for the timers
     """    
     def offboard_heartbeat_callback(self):
         """offboard heartbeat signal"""
-        self.publish_offboard_control_mode(position=True)
-
-
+        self.publish_offboard_control_mode(velocity=True)
 
 
     def main_timer_callback(self):
@@ -306,28 +295,36 @@ class VehicleController(Node):
             if self.vehicle_status.arming_state == VehicleStatus.ARMING_STATE_ARMED:
                 self.set_home(self.pos_gps)
                 self.phase = 1
-                self.subphase = 'position'
+                self.subphase = 'land_start'
                 self.print('\n[phase : 0 -> 1]')
                 self.print('[subphase : before flight -> position]\n')
 
         elif self.phase == 1:
-            if self.subphase == 'position':
+            if self.subphase == 'land_start':
                 if self.vehicle_status.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD:
-                    self.goal_yaw = self.start_yaw
-                    self.goal_position = self.WP[1]
-                    self.bezier_points = self.generate_bezier_curve(self.pos, self.goal_position, self.slow_vmax)
-                    self.subphase = 'landing align'
-                    self.print('\n[subphase : position -> landing align]\n')
+                    self.bezier_down = self.generate_bezier_curve(self.pos, np.array([self.pos[0],self.pos[1], -1.0]), 1.0)  
+                    self.subphase = 'slow_down'   
+                    self.print('\n[subphase : land_start -> slow_down]\n')                       
+                    # if self.pos[2] > -self.landing_height:
+                    #     self.subphase = 'patrol'
+                    #     self.patrol_length = 5.0
+                    #     self.patrol_trajectory = self.make_patrol_trajectory(self.pos, self.patrol_length, self.fast_vmax)
+                    #     self.print('\n[subphase : land_start -> patrol]\n')
+                    
+            
+            # elif self.subphase == 'patrol':
+            #     self.run_bezier_curve(self.patrol_trajectory)
+            #     if self.detect_apriltag:
+            #         self.subphase = 'prepare landing'
+            #         self.print('\n[subphase : patrol -> prepare landing]\n')
 
-            elif self.subphase == 'landing align':
-                print(self.bezier_counter)
-                self.run_bezier_curve(self.bezier_points, self.goal_yaw)
-                if np.abs((self.yaw - self.goal_yaw + np.pi) % (2 * np.pi) - np.pi) < self.heading_acceptance_angle and np.linalg.norm(self.pos - self.goal_position) < self.mc_acceptance_radius:
-                    self.subphase = 'prepare landing'
-                    self.print('\n[subphase : landing align -> prepare landing]\n')
+            elif self.subphase == 'slow_down' :
+                self.run_bezier_curve(self.bezier_down)
+                if self.detect_apriltag:
+                        self.subphase = 'prepare landing'
+                        self.print('\n[subphase : slow_down -> prepare landing]\n')
 
             elif self.subphase == 'prepare landing':
-                self.publish_trajectory_setpoint(position_sp=self.goal_position, yaw_sp=self.goal_yaw)
                 home_info = Float32MultiArray()
                 home_info.data = list(self.home_position) + [self.start_yaw]
                 self.start_yaw_publisher.publish(home_info)
@@ -336,10 +333,6 @@ class VehicleController(Node):
 
             elif self.subphase == 'auto landing':
                 if self.vehicle_status.arming_state == VehicleStatus.ARMING_STATE_DISARMED:
-                    horizontal_error = np.linalg.norm(self.pos[:2])
-                    self.print("--------------------------------------------")
-                    self.print(f"horizontal_error: {horizontal_error}")
-                    self.print("--------------------------------------------")
                     self.subphase = 'mission complete'
                     self.print('\n[subphase : auto landing -> mission complete]\n')
 
@@ -382,11 +375,8 @@ class VehicleController(Node):
         self.utc_sec = self.utc_datetime.second
         self.utc_ms = self.utc_datetime.microsecond // 1000  # Convert microseconds to milliseconds
     
-    def yolo_obstacle_callback(self, msg):
-        self.obstacle = True
-        self.obstacle_x = int(msg.x)
-        self.obstacle_y = int(msg.y)
-
+    def tag_callback(self, msg):
+        self.detect_apriltag = True
     """
     Functions for publishing topics.
     """
@@ -423,7 +413,6 @@ class VehicleController(Node):
     
     def publish_trajectory_setpoint(self, **kwargs):
         msg = TrajectorySetpoint()
-        # position setpoint is relative to the home position
         msg.position = list( kwargs.get("position_sp", np.nan * np.zeros(3)) + self.home_position )
         msg.velocity = list( kwargs.get("velocity_sp", np.nan * np.zeros(3)) )
         msg.yaw = kwargs.get("yaw_sp", float('nan'))
