@@ -9,7 +9,7 @@ from sklearn.linear_model import LinearRegression
 
 from tf2_msgs.msg import TFMessage as TfMsg
 from px4_msgs.msg import VehicleAttitude
-from px4_msgs.msg import VehicleLocalPosition
+from px4_msgs.msg import VehicleLocalPosition, VehicleStatus, VehicleCommand
 from std_msgs.msg import Float32MultiArray
 
 def quat2R(Q):
@@ -73,9 +73,21 @@ class TagPublisher(Node):
             10
         )
 
+        self.status_sub = self.create_subscription(
+            VehicleStatus, 
+            '/fmu/out/vehicle_status', 
+            self.vehicle_status_callback, 
+            qos_profile
+        )
+
+
         # parameter
 
         self.xf_pub = self.create_publisher(Float32MultiArray, 'bezier_waypoint', 10)
+        self.vehicle_command_publisher = self.create_publisher(
+            VehicleCommand, '/fmu/in/vehicle_command', qos_profile
+        )
+        
         self.first = True
         self.yaw = 0
         self.drone_q = [1.0,0.0,0.0,0.0]
@@ -114,6 +126,14 @@ class TagPublisher(Node):
             self.waypoint = current_waypoint
             self.first = False
             
+            # tag보이면 mission에서 offboard로 전환
+            if self.vehicle_status.nav_state == VehicleStatus.NAVIGATION_STATE_AUTO_MISSION:
+                self.publish_vehicle_command(
+                    VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 
+                    param1=1.0, # main mode
+                    param2=6.0  # offboard mode
+                )
+
             self.print(f"tag_world : {tag_world}    drone_world : {self.drone_world}    id : {frame_id}")
 
         except Exception as e:
@@ -140,6 +160,29 @@ class TagPublisher(Node):
                                           [0, 0, 1]])
         except:
             self.get_logger().info("Oh no,,, position")
+
+    def vehicle_status_callback(self, msg):
+        """Callback function for vehicle_status topic subscriber."""
+        self.vehicle_status = msg
+
+    def publish_vehicle_command(self, command, **kwargs):
+        """Publish a vehicle command."""
+        msg = VehicleCommand()
+        msg.command = command
+        msg.param1 = kwargs.get("param1", float('nan'))
+        msg.param2 = kwargs.get("param2", float('nan'))
+        msg.param3 = kwargs.get("param3", float('nan'))
+        msg.param4 = kwargs.get("param4", float('nan'))
+        msg.param5 = kwargs.get("param5", float('nan'))
+        msg.param6 = kwargs.get("param6", float('nan'))
+        msg.param7 = kwargs.get("param7", float('nan'))
+        msg.target_system = 1
+        msg.target_component = 1
+        msg.source_system = 1
+        msg.source_component = 1
+        msg.from_external = True
+        msg.timestamp = int(self.get_clock().now().nanoseconds / 1000)
+        self.vehicle_command_publisher.publish(msg)
 
     def get_rotation_matrix(self):
         # Roll (x축) 회전 행렬

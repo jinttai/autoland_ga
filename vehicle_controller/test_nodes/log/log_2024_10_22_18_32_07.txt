@@ -1,0 +1,21 @@
+Auto Latitude	Longtitude	 Altitude	  UTC Year	 UTC Month	  UTC Day	  UTC Hour	  UTC Min	  UTC Sec	   UTC ms  WPT
+
+[phase : 0 -> 1]
+[subphase : before flight -> position]
+
+
+[subphase : land_start -> slow_down]
+
+
+[subphase : slow_down -> prepare landing]
+
+
+[subphase : prepare landing -> auto landing]
+
+
+[subphase : auto landing -> mission complete]
+
+
+Mission complete
+Congratulations!
+
